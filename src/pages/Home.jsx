@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import History from "../components/History"
-import MovieCard from "../components/MovieCard"
+import MovieList from "../components/MovieList"
 
 export default function Home(){
     const [search, setSearch] = useState("")
@@ -29,17 +29,21 @@ export default function Home(){
 
     const getBondMovies = async () => {
         try {
-        const response = await fetch(`https://www.omdbapi.com/?s=james+bond&apikey=${apiKey}`)
-        const data = await response.json()
 
-        if  (data.Search) {
-            setMovies(data.Search)
-        }
+            const res1 = await fetch(`https://www.omdbapi.com/?s=james+bond&apikey=${apiKey}`)
+            const data1 = await res1.json()
+    
+            const res2 = await fetch(`https://www.omdbapi.com/?s=james+bond&page=2&apikey=${apiKey}`)
+            const data2 = await res2.json()
+    
+                const movies = [...(data1.Search || []), ...(data2.Search || [])]
+                setMovies(movies.slice(0,10))
+            } catch (err){
+                console.error(err)
+            }
+            }
 
-        } catch (err){
-            console.error(err)
-        }
-    }
+    
 
     const getMovies = async()=>{
         try
@@ -85,12 +89,7 @@ export default function Home(){
         focused ? <History history={history} setSearch={setSearch}/> : null }
             <button onClick={getMovies}>Søk</button>
         </form>
-
-        <section>
-            {movies.map(movie => ( 
-                <MovieCard key={movie.imdbID} movie={movie} />
-            ))}
-        </section>
+        <MovieList movies={movies} />
     
         
     </main>
